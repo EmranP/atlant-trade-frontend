@@ -12,7 +12,7 @@ export type AuthContextType = {
 	logout: () => Promise<void>
 }
 
-const AuthContext = createContext<AuthContextType | null>(null)
+export const AuthContext = createContext<AuthContextType | null>(null)
 
 export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
 	const [user, setUser] = useState<IProfile | null>(null)
