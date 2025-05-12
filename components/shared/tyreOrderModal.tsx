@@ -1,6 +1,9 @@
 'use client'
 
-import { fetchCreatedOrders, IOrders } from '@/api/tyres/order.api'
+
+import { createdOrders, getOrders, getProducts, IOrders } from '@/api/order/order.api'
+
+import { ITires } from '@/app/tyres/page'
 import { Button } from '@/components/ui/button'
 import {
 	Dialog,
@@ -11,28 +14,13 @@ import {
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { APPLICATION_API_URL } from '@/constants/api'
-import { errorMessage } from '@/constants/error.constatns'
+import { useAuth } from '@/shared/hooks/useAuth'
+import { useError } from '@/shared/hooks/useError'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { Loader } from '../ui/Loader'
 
-const tires = [
-	{
-		id: 1,
-		name: 'DRC D733 315/80 R22.5',
-		image: '/images/tyre1.png',
-	},
-	{
-		id: 2,
-		name: 'DRC D733 315/80 R22.5',
-		image: '/images/tyre1.png',
-	},
-	{
-		id: 3,
-		name: 'DRC D733 315/80 R22.5',
-		image: '/images/tyre1.png',
-	},
-]
 
 const StepIndicator = ({ currentStep }: { currentStep: number }) => {
 	return (
@@ -108,7 +96,7 @@ const ProductCard = ({
 	selectedQuantities,
 	setSelectedQuantities,
 }: {
-	tire: (typeof tires)[0]
+	tire: ITires
 	selectedQuantities: Record<number, number>
 	setSelectedQuantities: React.Dispatch<
 		React.SetStateAction<Record<number, number>>
@@ -127,7 +115,7 @@ const ProductCard = ({
 		<div className='bg-white rounded-xl p-4 shadow-sm border flex flex-col items-center'>
 			<div className='w-24 h-24 relative mb-2'>
 				<Image
-					src={tire.image}
+					src={'/images/tyre1.png'}
 					alt={tire.name}
 					fill
 					className='object-contain'
@@ -153,20 +141,70 @@ export default function TireOrderModal({
 	initialTireId,
 	initialQuantity = 1,
 }: TireOrderModalProps) {
+	const {user} = useAuth()
 	const router = useRouter()
 	const [step, setStep] = useState(1)
 	const [selectedQuantities, setSelectedQuantities] = useState<
 		Record<number, number>
 	>({})
 	const [formData, setFormData] = useState({
-		name: '',
-		phone: '',
-		email: '',
+		name: user?.firstName || '',
+		phone: user?.tel || '',
+		email: user?.email || '',
 		region: '',
 		message: '',
-		city: 'Москва',
+		city: user?.city || '',
 		workWithUs: '',
 	})
+	const {error, setError} = useError('')
+	const [products, setProducts] = useState<ITires[]>([])
+	const [orders, setOrders] = useState<IOrders[]>([])
+	const [isLoading, setIsLoading] = useState(false)
+
+	useEffect(() => {
+    const loadData = async () => {
+      setIsLoading(true);
+
+      // Загрузка продуктов
+      const productResult = await getProducts(setError);
+      if (Array.isArray(productResult)) {
+        setProducts(productResult);
+      } else {
+        setError(productResult || 'Ошибка загрузки продуктов');
+      }
+
+      // Загрузка заказов
+      if (user?.id) {
+        const orderResult = await getOrders(user.id, APPLICATION_API_URL, setError);
+        if (Array.isArray(orderResult)) {
+          setOrders(orderResult);
+        } else {
+          setError(orderResult || 'Ошибка загрузки заказов');
+        }
+      }
+
+      setIsLoading(false);
+    };
+
+    if (open) {
+      loadData();
+    }
+  }, [open, user?.id, setError])
+
+  useEffect(() => {
+  	const loadOrders = async () => {
+      const result = await getOrders(user?.id, APPLICATION_API_URL, setError);
+      if (Array.isArray(result)) {
+        setOrders(result);
+      } else {
+        setError(result || 'Ошибка загрузки продуктов');
+      }
+    };
+
+    if (open) {
+      loadOrders();
+    }
+  }, [open, setError, user?.id])
 
 	useEffect(() => {
 		if (open && initialTireId) {
@@ -178,50 +216,71 @@ export default function TireOrderModal({
 	}, [open, initialTireId, initialQuantity])
 
 	useEffect(() => {
-		if (!open) {
-			setStep(1)
-		}
-	}, [open])
+    if (!open) {
+      setStep(1);
+      setSelectedQuantities({});
+      setOrders([]);
+      setProducts([]);
+      setError('');
+    }
+  }, [open, setError])
 
 	const handleInputChange = (
-		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-	) => {
-		const { name, value } = e.target
-		setFormData(prev => ({
-			...prev,
-			[name]: value,
-		}))
-	}
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  }
 
 	const handleNextStep = async () => {
+		if (step === 1 && Object.values(selectedQuantities).every((qty) => qty === 0)) {
+      setError('Выберите хотя бы один продукт');
+      return;
+    }
+
 		if (step < 3) {
 			setStep(step + 1)
 		} else {
-			console.log('Form submitted', { selectedQuantities, formData })
+			const productIds = Object.keys(selectedQuantities)
+        .filter((id) => selectedQuantities[Number(id)] > 0)
+        .map((id) => Number(id));
+      const amounts = Object.keys(selectedQuantities)
+        .filter((id) => selectedQuantities[Number(id)] > 0)
+        .map((id) => selectedQuantities[Number(id)]);
+
 			const orderPayload: IOrders = {
-				id: Date.now(),
-				productIds: Object.keys(selectedQuantities).map(id => Number(id)),
-				firstName: formData.name,
-				tel: formData.phone,
-				region: formData.region,
-				email: formData.email,
-				message: formData.message,
-				type: formData.workWithUs,
-				user: { id: 0, email: formData.email },
-				createdAt: new Date().toISOString(),
-			}
-			const result = await fetchCreatedOrders(
+        productIds,
+        amounts,
+        firstName: formData.name,
+        tel: formData.phone,
+        region: formData.region,
+        email: formData.email,
+        message: formData.message,
+        type: formData.workWithUs,
+        user: { id: user?.id, email: formData.email },
+        createdAt: new Date().toISOString(),
+      };
+
+			if (!user?.id) {
+        setError('Пользователь не авторизован');
+        return;
+      }
+
+			const result = await createdOrders(
+				user?.id,
 				APPLICATION_API_URL,
 				orderPayload,
-				errorMessage
+				setError
 			)
-			if (typeof result === 'string') {
-				console.error('Order creation error:', errorMessage)
-			} else {
-				console.log('Order created:', result)
-				onOpenChange(false)
-				router.refresh()
-			}
+
+			if (result) {
+        onOpenChange(false);
+        router.refresh();
+      }
+			console.log('Form submitted', { selectedQuantities, formData })
 		}
 	}
 
@@ -231,13 +290,31 @@ export default function TireOrderModal({
 		}
 	}
 
+	const orderProductIds = orders.flatMap((order) => order.productIds); // Собираем все productIds из заказов
+  const orderProducts = products
+    .filter((product) => orderProductIds.includes(product.id))
+    .map((product) => {
+      // Для каждого продукта ищем количество из заказов
+      const orderWithProduct = orders.find((order) =>
+        order.productIds.includes(product.id)
+      );
+      const index = orderWithProduct?.productIds.indexOf(product.id);
+      const quantity = index !== undefined && index >= 0 && orderWithProduct?.amounts
+        ? orderWithProduct.amounts[index]
+        : 1; // По умолчанию 1, если количество не указано
+      return { tire: product, quantity };
+    });
+
 	const selectedTires = Object.entries(selectedQuantities)
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		.filter(([_, qty]) => qty > 0)
-		.map(([tireId, qty]) => {
-			const tire = tires.find(t => t.id === parseInt(tireId))
-			return { tire, quantity: qty }
-		})
+    .filter(([_, qty]) => qty > 0)
+    .map(([tireId, qty]) => {
+      const tire = products.find((t) => t.id === parseInt(tireId));
+      return { tire, quantity: qty };
+    })
+    .filter(({ tire }) => tire !== undefined) as { tire: ITires; quantity: number }[];
+
+  console.log('products order', products)
+  console.log('orders', orders)
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
@@ -248,19 +325,31 @@ export default function TireOrderModal({
 					</DialogTitle>
 				</DialogHeader>
 
+				{error && (
+          <p className="text-red-500 text-sm mb-4">{error}</p>
+        )}
+
 				<StepIndicator currentStep={step} />
 
 				{step === 1 && (
 					<div className='mt-4'>
 						<div className='grid grid-cols-3 gap-4 mb-6'>
-							{tires.map(tire => (
-								<ProductCard
-									key={tire.id}
-									tire={tire}
-									selectedQuantities={selectedQuantities}
-									setSelectedQuantities={setSelectedQuantities}
-								/>
-							))}
+							{isLoading ? (
+								<div className='col-span-3'>
+                	<Loader size={30} />
+								</div>
+              ) : products.length > 0 ? (
+                products.map((tire) => (
+                  <ProductCard
+                    key={tire.id}
+                    tire={tire}
+                    selectedQuantities={selectedQuantities}
+                    setSelectedQuantities={setSelectedQuantities}
+                  />
+                ))
+              ) : (
+                <p className='text-center col-span-3'>Продукты отсутствуют</p>
+              )}
 						</div>
 						<div className='flex justify-between mt-6'>
 							<Button variant='outline' onClick={() => onOpenChange(false)}>
@@ -292,7 +381,7 @@ export default function TireOrderModal({
 								placeholder='Регион'
 							/>
 							<Input
-								name='phone'
+								name='tel'
 								value={formData.phone}
 								onChange={handleInputChange}
 								placeholder='Телефон'
@@ -332,30 +421,29 @@ export default function TireOrderModal({
 						<div className='mb-6'>
 							<h3 className='text-lg font-medium mb-4'>Продукты</h3>
 							<div className='grid grid-cols-3 gap-4 mb-6'>
-								{selectedTires.map(
-									({ tire, quantity }) =>
-										tire && (
-											<div
-												key={tire.id}
-												className='bg-white rounded-xl p-4 shadow-sm border flex flex-col items-center'
-											>
-												<div className='w-24 h-24 relative mb-2'>
-													<Image
-														src={tire.image}
-														alt={tire.name}
-														fill
-														className='object-contain'
-													/>
-												</div>
-												<div className='text-xs text-center font-medium mb-1'>
-													{tire.name}
-												</div>
-												<div className='text-xs text-center mb-2'>
-													{quantity}шт
-												</div>
-											</div>
-										)
-								)}
+								{isLoading ? (
+                  <Loader size={30} />
+                ) : orderProducts.length > 0 ? (
+                  orderProducts.map(({ tire, quantity }) => (
+                    <div
+                      key={tire.id}
+                      className='bg-white rounded-xl p-4 shadow-sm border flex flex-col items-center'
+                    >
+                      <div className='w-24 h-24 relative mb-2'>
+                        <Image
+                          src={'/images/tyre1.png'}
+                          alt={tire.name}
+                          fill
+                          className='object-contain'
+                        />
+                      </div>
+                      <div className='text-xs text-center font-medium mb-1'>{tire.name}</div>
+                      <div className='text-xs text-center mb-2'>{quantity}шт</div>
+                    </div>
+                  ))
+                ) : (
+                  <p className='text-center col-span-3'>Нет продуктов в заказах</p>
+                )}
 							</div>
 
 							<h3 className='text-lg font-medium mb-4'>

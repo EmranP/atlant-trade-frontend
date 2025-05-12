@@ -1,5 +1,11 @@
+import { ITires } from "@/app/tyres/page"
+import { PRODUCTS_API_URL } from "@/constants/api"
+import { $api } from "@/lib/api.lib"
+import { Dispatch, SetStateAction } from "react"
+
 export interface IOrders {
-	id: number
+	id?: number
+	amounts: number[]
 	productIds: number[]
 	firstName: string
 	tel: string
@@ -8,63 +14,73 @@ export interface IOrders {
 	message: string
 	type: string
 	user: {
-		id: number
+		id: number | undefined
 		email: string
 	}
-	createdAt: Date | string
+	createdAt?: Date | string
 }
 
-export const fetchOrders = async (
+export const getOrders = async (
+	userId: number | undefined,
 	url: string | undefined,
-	errorMessage: string | undefined
-): Promise<IOrders[] | string | null> => {
+	setError: Dispatch<SetStateAction<string | null>>
+): Promise<IOrders[] | undefined> => {
 	try {
-		if (!url) return null
+		if (!url) return
 
-		const response = await fetch(url)
+		const response = await $api.get<IOrders[]>(`${url}?userId=${userId}`)
 
-		if (!response.ok) {
+		if (response.status !== 200) {
 			throw new Error('Error response fetch products')
 		}
 
-		const resultProducts: IOrders[] = await response.json()
-
-		return resultProducts
+		return response.data
 	} catch (error) {
 		if (error instanceof Error) {
-			errorMessage = error.message
+			setError(error.message)
 		} else {
-			errorMessage = 'Something was wrong from fetch order ('
+			setError('Something was wrong from fetch order (')
 		}
-		return errorMessage || null
 	}
 }
 
-export const fetchCreatedOrders = async (
+export const createdOrders = async (
+	userId: number | undefined,
 	url: string | undefined,
 	data: IOrders,
-	errorMessage: string | undefined
-): Promise<IOrders | string | null> => {
+	setError: Dispatch<SetStateAction<string | null>>
+): Promise<IOrders | undefined> => {
 	try {
-		if (!url) return null
+		if (!url) return
 
-		const newOrderData = await fetch(url, {
-			method: 'POST',
-			headers: {
-				'Content-type': 'application/json',
-			},
-			body: JSON.stringify(data),
-		})
+		const newOrderData = await $api.post<IOrders>(`${url}?userId=${userId}`, data)
 
-		const result: IOrders = await newOrderData.json()
+		if (newOrderData.status !== 201) {
+			throw new Error('Error where created order')
+		}
 
-		return result
+		return newOrderData.data
 	} catch (error) {
 		if (error instanceof Error) {
-			errorMessage = error.message
+			setError( error.message)
 		} else {
-			errorMessage = 'Something was wrong from fetch order ('
+			setError('Something was wrong from fetch order (')
 		}
-		return errorMessage || null
+	}
+}
+
+// New req getProducts
+
+export const getProducts = async (setError: Dispatch<SetStateAction<string | null>>):Promise<ITires[] | undefined> => {
+	try {
+		const response = await $api.get<ITires[]>(PRODUCTS_API_URL)
+
+		if (response.status !== 200) {
+			throw new Error('Error form get order products')
+		}
+
+		return response.data
+	} catch (error) {
+		setError(error instanceof Error ? error.message : 'Something was wrong')
 	}
 }

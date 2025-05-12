@@ -1,29 +1,52 @@
 "use client";
 
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { createDealership } from "@/api/dealership/dealership.api";
+import { useError } from "@/shared/hooks/useError";
+
+export interface IDealership {
+  companyName: string
+  inn: string
+  region: string
+  email: string
+  message: string
+}
 
 export default function Dealership() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<IDealership>({
     companyName: "",
     inn: "",
     region: "",
     email: "",
     message: "",
   });
+  const {error, setError} = useError('')
+  const [success, setSuccess] = useState<string | null>(null)
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     console.log("Form data submitted:", formData);
-    // Handle form submission logic here
+    const result = await createDealership(formData, setError)
+
+    if (result) {
+      setSuccess("Заявка на дилерство успешно отправлена!");
+      setFormData({
+        companyName: "",
+        inn: "",
+        region: "",
+        email: "",
+        message: "",
+      });
+    }
   };
 
   return (
@@ -84,6 +107,15 @@ export default function Dealership() {
         <h2 className="text-4xl font-bold mb-8">
           Оставьте заявку на дилерство
         </h2>
+        {error && (
+          <h2 className="text-2xl font-bold text-red-500 mb-8">
+            {error}
+          </h2>
+        )}
+
+        {success && (
+          <h2 className="text-2xl font-bold text-green-500 mb-8">{success}</h2>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <Input
