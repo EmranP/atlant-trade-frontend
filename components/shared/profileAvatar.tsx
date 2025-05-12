@@ -8,7 +8,11 @@ import {
 	DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
 
-const ProfileAvatar = () => {
+interface IProfileAvatarProps {
+	logoutHandler: () => Promise<void>
+}
+
+const ProfileAvatar = ({logoutHandler}: IProfileAvatarProps) => {
 	return (
 		<>
 			<DropdownMenu>
@@ -23,13 +27,15 @@ const ProfileAvatar = () => {
 						Геннадий Тарханян
 					</DropdownMenuLabel>
 					<DropdownMenuSeparator />
-					<DropdownMenuLabel>Избранное</DropdownMenuLabel>
+					<Link href={'/tyres/favorite'}>
+						<DropdownMenuLabel>Избранное</DropdownMenuLabel>
+					</Link>
 					<DropdownMenuSeparator />
 					<Link href={'/profile'}>
 						<DropdownMenuLabel>Настройки профиля</DropdownMenuLabel>
 					</Link>
 					<DropdownMenuSeparator />
-					<DropdownMenuLabel className='font-bold'>Выйти</DropdownMenuLabel>
+					<DropdownMenuLabel className='font-bold cursor-pointer' onClick={logoutHandler}>Выйти</DropdownMenuLabel>
 				</DropdownMenuContent>
 			</DropdownMenu>
 		</>

@@ -14,3 +14,5 @@ export const APPLICATION_DEALERSHIP_API_URL = `${APPLICATION_API_URL}/dealership
 export const PROFILE_API_URL = `${BASE_API_URL}/profile`
 export const PROFILE_AVATAR_API_URL = `${PROFILE_API_URL}/avatar`
 export const PROFILE_PASS_API_URL = `${PROFILE_API_URL}/password`
+// Dealership
+export const DEALRESHIP_API_URL = `${BASE_API_URL}/dealership`

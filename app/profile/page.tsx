@@ -1,55 +1,133 @@
 'use client'
-import { fetchProfileUpdated, INewProfile } from '@/api/tyres/profile.api'
+import { deleteProfileAvatar, INewProfile, updatedProfile, updatedProfileAvatar, updatedProfilePassword } from '@/api/profile/profile.api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { PROFILE_API_URL } from '@/constants/api'
-import { errorMessage } from '@/constants/error.constatns'
-import { useState } from 'react'
+import { useAuth } from '@/shared/hooks/useAuth'
+import { useError } from '@/shared/hooks/useError'
+import Image from 'next/image'
+import { ChangeEvent, useRef, useState } from 'react'
 
 export default function ProfileSettings() {
+	const { user } = useAuth()
 	const [formData, setFormData] = useState<INewProfile>({
-		firstName: 'Геннадий',
-		lastName: '',
-		tel: '+79999999999',
-		email: 'gennady@mail.ru',
-		city: 'Москва',
-		ownerCompany: '',
+		firstName: user?.firstName || '',
+		lastName: user?.lastName || '',
+		tel: user?.tel || '',
+		email: user?.email || '',
+		city: user?.city || '',
+		ownerCompany: user?.ownerCompany || '',
+		oldPassword: '',
 		newPassword: '',
 		confirmPassword: '',
-		avatar: '',
+		avatar: user?.avatar || '',
 	})
+	const {error, setError} = useError(null)
+	const [selectedFile, setSelectedFile] = useState<File | null>(null)
+	const fileInputRef = useRef<HTMLInputElement>(null)
 
 	const handleChange = (
-		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 	) => {
 		const { name, value } = e.target
 		setFormData(prev => ({ ...prev, [name]: value }))
 	}
 
-	const handleSave = async () => {
-		await fetchProfileUpdated(PROFILE_API_URL, formData, errorMessage as string)
+	const updatedProfileData = {
+		firstName: formData.firstName,
+		lastName: formData.lastName,
+		tel: formData.tel,
+		email: formData.email,
+		city: formData.city,
+		ownerCompany: formData.ownerCompany,
+	}
+
+	const updatedProfilePasswordData = {
+		oldPassword: formData.oldPassword,
+		newPassword: formData.newPassword
+	}
+
+	const fileChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0]
+		if (file) {
+			setSelectedFile(file)
+		}
+	}
+
+	const uploadClickHandler = () => {
+		fileInputRef.current?.click()
+	}
+
+	const removeClickHandler = async () => {
+		setSelectedFile(null)
+    setFormData(prev => ({ ...prev, avatar: '' }))
+		await deleteProfileAvatar(user?.id, setError)
+	}
+
+	const saveHandler = async () => {
+		// Add redirect
+		if (!user?.id) return
+
+		if (selectedFile) {
+			const formData = new FormData()
+			formData.append('avatar', selectedFile)
+
+			// await updatedProfileAvatar(user.id, formData, setError)
+		}
+
+		await updatedProfile(
+			user.id,
+			updatedProfileData,
+			setError
+		)
+		await updatedProfilePassword(user.id, updatedProfilePasswordData, setError)
+
 		console.log('Settings saved:', formData)
 	}
 
 	return (
 		<div className='max-w-5xl mx-auto px-4 py-8'>
-			<h1 className='text-4xl font-bold mb-10'>Настройки профиля</h1>
+			<h1 className='text-4xl font-bold mb-7'>Настройки профиля</h1>
+			{error && (<h1 className='text-2xl font-bold my-5 text-red-500'>{error}</h1>)}
 
 			<div className='flex flex-col md:flex-row gap-8'>
 				<div className='flex flex-col items-center'>
-					<div className='w-64 h-64 rounded-full bg-gray-300 mb-6 overflow-hidden'>
-						<div className='w-full h-full'></div>
-					</div>
+					{(selectedFile || formData.avatar) && (
+  			  	<div className='w-64 h-64 rounded-full mb-6 overflow-hidden relative'>
+  			  	  <Image
+  			  	    src={
+  			  	      selectedFile
+  			  	        ? URL.createObjectURL(selectedFile)
+  			  	        : formData.avatar
+  			  	    }
+  			  	    alt='Аватар'
+  			  	    width={256}
+  			  	    height={256}
+  			  	    className='object-cover w-full h-full'
+  			  	  />
+  			  	</div>
+  				)}
+
+  				{!selectedFile && !formData.avatar && (
+  				  <div className='w-64 h-64 rounded-full bg-gray-300 mb-6'></div>
+  				)}
 
 					<Button
-						onClick={() => console.log('Upload photo')}
+						onClick={uploadClickHandler}
 						className='w-full mb-3 bg-black hover:bg-gray-800 text-white font-medium py-3'
 					>
 						ЗАГРУЗИТЬ ФОТО
 					</Button>
 
+					<input
+  					type="file"
+  					accept="image/*"
+  					style={{ display: 'none' }}
+  					ref={fileInputRef}
+  					onChange={fileChangeHandler}
+					/>
+
 					<Button
-						onClick={() => console.log('Delete photo')}
+						onClick={removeClickHandler}
 						variant='destructive'
 						className='w-full bg-red-700 hover:bg-red-800 text-white font-medium py-3'
 					>
@@ -62,7 +140,7 @@ export default function ProfileSettings() {
 						<Input
 							type='text'
 							name='firstName'
-							placeholder='Геннадий'
+							placeholder='Имя'
 							value={formData.firstName}
 							onChange={handleChange}
 							className='py-6 bg-gray-100 rounded-md'
@@ -80,9 +158,9 @@ export default function ProfileSettings() {
 
 					<div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-6'>
 						<Input
-							type='tel'
-							name='phone'
-							placeholder='+79999999999'
+							type="tel"
+							name='tel'
+							placeholder='+7'
 							value={formData.tel}
 							onChange={handleChange}
 							className='py-6 bg-gray-100 rounded-md'
@@ -91,7 +169,7 @@ export default function ProfileSettings() {
 						<Input
 							type='email'
 							name='email'
-							placeholder='gennady@mail.ru'
+							placeholder='email@example.ru'
 							value={formData.email}
 							onChange={handleChange}
 							className='py-6 bg-gray-100 rounded-md'
@@ -102,7 +180,7 @@ export default function ProfileSettings() {
 						<Input
 							type='text'
 							name='city'
-							placeholder='Москва'
+							placeholder='Город'
 							value={formData.city}
 							onChange={handleChange}
 							className='py-6 bg-gray-100 rounded-md'
@@ -110,7 +188,7 @@ export default function ProfileSettings() {
 
 						<Input
 							type='text'
-							name='company'
+							name='ownerCompany'
 							placeholder='Название компании'
 							value={formData.ownerCompany}
 							onChange={handleChange}
@@ -122,23 +200,35 @@ export default function ProfileSettings() {
 
 					<div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-12'>
 						<div>
-							<p className='block mb-2'>Новый пароль</p>
+							<p className='block mb-2'>Старый пароль</p>
 							<Input
 								type='password'
-								name='newPassword'
-								placeholder='••••••••'
-								value={formData.newPassword}
+								name='oldPassword'
+								placeholder='Старый пароль'
+								value={formData.oldPassword}
 								onChange={handleChange}
 								className='py-6 bg-gray-100 rounded-md'
 							/>
 						</div>
 
 						<div>
+							<p className='block mb-2'>Новый пароль</p>
+							<Input
+								type='password'
+								name='newPassword'
+								placeholder='Новый пароль'
+								value={formData.newPassword}
+								onChange={handleChange}
+								className='py-6 bg-gray-100 rounded-md'
+							/>
+						</div>
+
+						<div className='col-span-2'>
 							<p className='block mb-2'>Повторите пароль</p>
 							<Input
 								type='password'
 								name='confirmPassword'
-								placeholder='••••••••'
+								placeholder='Подтвердите пароль'
 								value={formData.confirmPassword}
 								onChange={handleChange}
 								className='py-6 bg-gray-100 rounded-md'
@@ -148,7 +238,7 @@ export default function ProfileSettings() {
 
 					<div className='flex justify-end gap-4'>
 						<Button
-							onClick={() => console.log('Cancel')}
+							onClick={() => {}}
 							variant='outline'
 							className='px-12 py-6 border-2 border-gray-300 rounded-full font-medium'
 						>
@@ -156,7 +246,7 @@ export default function ProfileSettings() {
 						</Button>
 
 						<Button
-							onClick={handleSave}
+							onClick={saveHandler}
 							className='px-12 py-6 bg-black hover:bg-gray-800 text-white font-medium rounded-full'
 						>
 							СОХРАНИТЬ ИЗМЕНЕНИЯ
