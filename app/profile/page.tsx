@@ -1,5 +1,5 @@
 'use client'
-import { deleteProfileAvatar, INewProfile, updatedProfile, updatedProfileAvatar, updatedProfilePassword } from '@/api/profile/profile.api'
+import { deleteProfileAvatar, INewProfile, updatedProfile, updatedProfilePassword } from '@/api/profile/profile.api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/shared/hooks/useAuth'

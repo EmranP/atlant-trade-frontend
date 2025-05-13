@@ -1,4 +1,5 @@
 import { ITires } from '@/app/tyres/page'
+import { Dispatch, SetStateAction } from 'react'
 
 export const fetchProductsTyres = async (
 	url: string | undefined,
@@ -29,10 +30,10 @@ export const fetchProductsTyres = async (
 export const fetchProductsTyresById = async (
 	url: string | undefined,
 	id: string,
-	errorMessage: string | undefined
-): Promise<ITires | string | null> => {
+	setError: Dispatch<SetStateAction<string | null>>
+): Promise<ITires | undefined> => {
 	try {
-		if (!url) return null
+		if (!url) return
 		const response = await fetch(`${url}/${id}`)
 
 		if (!response.ok) {
@@ -44,12 +45,10 @@ export const fetchProductsTyresById = async (
 		return result
 	} catch (error) {
 		if (error instanceof Error) {
-			errorMessage = error.message
+			setError(error.message)
 		} else {
-			errorMessage = 'Something was wrong from fetch product ('
+			setError('Something was wrong from fetch product (')
 		}
-
-		return errorMessage
 	}
 }
 

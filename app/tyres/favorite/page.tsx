@@ -1,10 +1,11 @@
 'use client'
 
 import { getFavorite } from '@/api/favorite/favorite.api'
-import FilterSelect from '@/components/shared/filterSelect'
+import Filters from '@/components/shared/Filters'
+import OrderButton from '@/components/shared/OrderButton'
 import TyreCard from '@/components/shared/tyreCard'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Loader } from '@/components/ui/Loader'
 import { useAuth } from '@/shared/hooks/useAuth'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -28,17 +29,25 @@ export interface ITires {
 
 export default  function FavoriteTiresPage() {
   const { user } = useAuth();
-  const [favoriteTires, setFavoriteTires] = useState<ITires[] | null>(null);
+  const [favoriteTires, setFavoriteTires] = useState<ITires[]>([]);
   const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const getFavoriteHandler = async () => {
+      try {
+        setIsLoading(true)
       const result = await getFavorite(user?.id);
 
       if (typeof result === 'string') {
         setError(result);
       } else {
         setFavoriteTires(result);
+      }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Bad Reqeust')
+      } finally {
+        setIsLoading(false)
       }
     };
 
@@ -49,76 +58,57 @@ export default  function FavoriteTiresPage() {
 
 
   return (
-    <div className='max-w-7xl mx-auto px-4 py-8'>
-      <h1 className='text-3xl font-bold mb-8'>Избранный</h1>
+    <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12'>
+      {/* Увеличены отступы для лучшего восприятия */}
+      <h1 className='text-3xl sm:text-4xl font-bold mb-8 text-gray-900'>
+        Избранное
+      </h1>
 
-      <div className='grid grid-cols-1 md:grid-cols-4 gap-4 mb-8'>
-        <FilterSelect
-          label='Ширина'
-          options={[
-            { label: 'Все', value: 'all' },
-            { label: '295', value: '295' },
-            { label: '315', value: '315' },
-            { label: '385', value: '385' },
-          ]}
-        />
+      {user?.id ? (
+        <>
+          <Filters tires={favoriteTires} />
 
-        <FilterSelect
-          label='Высота'
-          options={[
-            { label: 'Все', value: 'all' },
-            { label: '70', value: '70' },
-            { label: '80', value: '80' },
-            { label: '90', value: '90' },
-          ]}
-        />
+          <div className='grid grid-cols-3 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
+            {isLoading ? (
+              <div className='col-span-full flex justify-center items-center h-64'>
+                <Loader size={40} />
+              </div>
+            ) : error ? (
+              <div className='col-span-full text-center py-12'>
+                <h2 className='text-xl text-red-500 font-medium'>{error}</h2>
+              </div>
+            ) : favoriteTires.length > 0 ? (
+              favoriteTires.map((tire) => (
+                <Link key={tire.id} href={`/tyres/favorite/${tire.id}`}>
+                  <TyreCard model={tire} />
+                </Link>
+              ))
+            ) : (
+              <div className='col-span-full text-center py-12'>
+                <h2 className='text-2xl text-gray-600 font-medium'>
+                  Избранных шин пока нет
+                </h2>
+                <p className='text-gray-500 mt-2'>
+                  Добавьте шины в избранное, чтобы они появились здесь.
+                </p>
+                <Link href='/tyres'>
+                  <Button className='mt-4 bg-black text-white hover:bg-gray-800'>
+                    Перейти к каталогу
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </div>
 
-        <FilterSelect
-          label='Диаметр'
-          options={[
-            { label: 'Все', value: 'all' },
-            { label: 'R22.5', value: 'r22.5' },
-            { label: 'R19.5', value: 'r19.5' },
-            { label: 'R17.5', value: 'r17.5' },
-          ]}
-        />
-
-        <FilterSelect
-          label='Ось'
-          options={[
-            { label: 'Все', value: 'all' },
-            { label: 'Ведущая', value: 'drive' },
-            { label: 'Рулевая', value: 'steer' },
-            { label: 'Прицепная', value: 'trailer' },
-          ]}
-        />
-      </div>
-
-      {error && (
-        <div className="w-full text-center">
-          <h1 className="text-red-500">{error}</h1>
+          <OrderButton  />
+        </>
+      ) : (
+        <div className='col-span-full text-center py-12'>
+          <h2 className='text-2xl text-gray-600 font-medium'>
+            Авторизуйтесь, чтобы увидеть избранное
+          </h2>
         </div>
       )}
-
-      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-        {favoriteTires && favoriteTires?.length ?
-        favoriteTires?.map(tire => (
-          <Link key={tire.id} href={`/tyres/favorite/${tire.id}`}>
-            <TyreCard model={tire} />
-          </Link>
-        )) : !error ? (
-          <h1 className='w-full col-span-3 text-3xl mx-auto text-center'>Избранных пока нету...</h1>
-        ): null}
-      </div>
-
-      <div className='fixed bottom-8 right-8'>
-        <Button className='bg-black hover:bg-gray-800 text-white rounded-full px-6 py-3 font-medium'>
-          ЗАЯВКА
-          <Badge className='ml-2 bg-red-600 w-4 h-4 rounded-full p-0 flex items-center justify-center'>
-            1
-          </Badge>
-        </Button>
-      </div>
     </div>
   )
 }

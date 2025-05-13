@@ -305,14 +305,6 @@ export default function TireOrderModal({
       return { tire: product, quantity };
     });
 
-	const selectedTires = Object.entries(selectedQuantities)
-    .filter(([_, qty]) => qty > 0)
-    .map(([tireId, qty]) => {
-      const tire = products.find((t) => t.id === parseInt(tireId));
-      return { tire, quantity: qty };
-    })
-    .filter(({ tire }) => tire !== undefined) as { tire: ITires; quantity: number }[];
-
   console.log('products order', products)
   console.log('orders', orders)
 
@@ -333,7 +325,7 @@ export default function TireOrderModal({
 
 				{step === 1 && (
 					<div className='mt-4'>
-						<div className='grid grid-cols-3 gap-4 mb-6'>
+						<div className='grid grid-cols-3 gap-4 mb-6 max-h-[400px] overflow-y-auto'>
 							{isLoading ? (
 								<div className='col-span-3'>
                 	<Loader size={30} />

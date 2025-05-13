@@ -8,23 +8,19 @@ import {
 
 interface FilterSelectProps {
   label: string;
-  placeholder?: string;
   options: { label: string; value: string }[];
-  onChange?: (value: string) => void;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string
 }
 
-export default function FilterSelect({
-  label,
-  placeholder = "Все",
-  options,
-  onChange,
-}: FilterSelectProps) {
+export default function FilterSelect({ label, options, value, onChange, placeholder }: FilterSelectProps) {
   return (
     <div>
-      <p className="mb-2 font-medium">{label}</p>
-      <Select onValueChange={onChange}>
+      <label className="mb-2 font-medium">{label}</label>
+      <Select value={value} onValueChange={onChange}>
         <SelectTrigger className="w-full bg-gray-100">
-          <SelectValue placeholder={placeholder} />
+          <SelectValue placeholder={`Выберите ${placeholder}`} />
         </SelectTrigger>
         <SelectContent>
           {options.map((option) => (

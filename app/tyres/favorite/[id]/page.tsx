@@ -1,13 +1,11 @@
 'use client'
 
 import {
-  fetchProductsTyres,
   fetchProductsTyresById,
 } from '@/api/tyres/tyres.api'
 import TireOrderModal from '@/components/shared/tyreOrderModal'
 import { Button } from '@/components/ui/button'
-import { APPLICATION_API_URL, FAVORITE_API_URL, PRODUCTS_API_URL } from '@/constants/api'
-import { errorMessage } from '@/constants/error.constatns'
+import { APPLICATION_API_URL, PRODUCTS_API_URL } from '@/constants/api'
 import { ChevronLeft, Heart, Minus, Plus } from 'lucide-react'
 import Image from 'next/image'
 import { use, useEffect, useState } from 'react'
@@ -25,73 +23,58 @@ interface IPage {
 }
 
 export default function FavoriteTireProductDetail({ params }: IPage) {
-  const [data, setData] = useState<ITires[]>([])
-  const [orderProductData, setOrderProductData] = useState<IOrders[]>([])
-  const [dataTireProduct, setDataTireProduct] = useState<ITires | null>(null)
-  const [quantity, setQuantity] = useState<number | undefined | null>(null)
-  const [isFavorite, setIsFavorite] = useState(false)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const { id } = use(params)
-  const {user} = useAuth()
-  const rouuter = useRouter()
-  const {error, setError} = useError('')
+  const [orderProductData, setOrderProductData] = useState<IOrders[]>([]);
+  const [dataTireProduct, setDataTireProduct] = useState<ITires | undefined | null>(null);
+  const [quantity, setQuantity] = useState<number>(1); // Инициализируем количеством 1
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { id } = use(params);
+  const { user } = useAuth();
+  const router = useRouter();
+  const { error, setError } = useError('');
+
 
   useEffect(() => {
     const getProduct = async () => {
-      const data = await fetchProductsTyresById(
-        PRODUCTS_API_URL,
-        id,
-        errorMessage
-      )
+      const data = await fetchProductsTyresById(PRODUCTS_API_URL, id, setError);
 
-      const dataAllProduct = await fetchProductsTyres(
-        PRODUCTS_API_URL,
-        errorMessage
-      )
-
-      if (data && typeof data !== 'string') {
-        setDataTireProduct(data as ITires)
-        setQuantity(data?.amount)
+      if (data) {
+        setDataTireProduct(data);
+        setQuantity(data.amount || 1); // Устанавливаем количество из данных продукта или 1
       }
 
-      if (dataAllProduct && typeof dataAllProduct !== 'string') {
-        setData(dataAllProduct)
+    };
+
+    const getOrder = async () => {
+      const orderData = await getOrders(user?.id, APPLICATION_API_URL, setError);
+
+      if (orderData && typeof orderData !== 'string') {
+        setOrderProductData(orderData);
       }
-    }
+    };
 
-    const getOrderHandler = async () => {
-      const orderData = await getOrders(user?.id, APPLICATION_API_URL, setError)
-
-      if (orderData) {
-        setOrderProductData(orderData)
-      }
-    }
-
-    getProduct()
-    getOrderHandler()
-  }, [id])
+    getProduct();
+    getOrder();
+  }, [id, user?.id, setError]);
 
   useEffect(() => {
     const checkIsFavorite = async () => {
-      if (!user?.id || !id) return
+      if (!user?.id || !id) return;
 
       try {
-        const favorites = await getFavorite(user.id)
+        const favorites = await getFavorite(user.id);
         if (Array.isArray(favorites)) {
-          const isFav = favorites.some((item) => item.id === Number(id))
-          setIsFavorite(isFav)
+          const isFav = favorites.some((item) => item.id === Number(id));
+          setIsFavorite(isFav);
         }
       } catch (err) {
-        console.error('Ошибка при проверке избранного:', err)
+        console.error('Ошибка при проверке избранного:', err);
       }
-    }
+    };
 
-    checkIsFavorite()
-  }, [user?.id, id])
+    checkIsFavorite();
+  }, [user?.id, id]);
 
-  console.log({ dataTireProduct })
-
-  console.log(dataTireProduct?.amount)
 
   const products = [
     { label: 'Размер', value: dataTireProduct?.size },
@@ -105,35 +88,39 @@ export default function FavoriteTireProductDetail({ params }: IPage) {
   ]
 
   const handleDecrease = () => {
-    if (typeof quantity === 'number' && quantity && quantity > 1) {
-      setQuantity(quantity - 1)
-    }
-  }
+    setQuantity((prev) => Math.max(1, prev - 1));
+  };
 
   const handleIncrease = () => {
-    if (typeof quantity === 'number' && quantity) {
-      setQuantity(quantity + 1)
-    }
-  }
+    setQuantity((prev) => prev + 1);
+  };
+
 
   const toggleFavoriteHandler = async () => {
-  if (!user?.id) return
+    if (!user?.id) return;
 
-  try {
-    if (isFavorite) {
-      await removeFavorite(id, user.id)
-    } else {
-      await addFavorite(id, user.id)
+    try {
+      if (isFavorite) {
+        await removeFavorite(id, user.id);
+
+      } else {
+        await addFavorite(id, user.id);
+      }
+      window.location.reload()
+      setIsFavorite(!isFavorite);
+    } catch (err) {
+      console.error('Ошибка при изменении избранного:', err);
+      setError('Ошибка при изменении избранного');
     }
-    setIsFavorite(!isFavorite)
-  } catch (err) {
-    console.error(err)
-  }
-}
+  };
 
   const handleAddToOrder = () => {
-    setIsModalOpen(true)
-  }
+    if (!user?.id) {
+      setError('Для добавления в заявку нужно авторизоваться');
+      return;
+    }
+    setIsModalOpen(true);
+  };
 
   return (
     <div className='max-w-7xl mx-auto px-4 py-8'>
@@ -141,7 +128,7 @@ export default function FavoriteTireProductDetail({ params }: IPage) {
         <Button
           variant='ghost'
           className='flex items-center cursor-pointer text-black hover:bg-gray-100'
-          onClick={() => rouuter.back()}
+          onClick={() => router.back()}
         >
           <ChevronLeft className='mr-1 h-4 w-4' />
           Назад
@@ -183,7 +170,7 @@ export default function FavoriteTireProductDetail({ params }: IPage) {
           <div className='mb-8'>
             <p className='text-4xl font-bold'>{dataTireProduct?.price} ₽</p>
           </div>
-
+          {error && (<h1 className='text-2xl font-bold my-5 text-red-500'>{error}</h1>)}
           <div className='mb-8 max-w-lg'>
             {products.map((product, index) => (
               <div key={index} className='flex justify-between py-3'>
@@ -194,56 +181,80 @@ export default function FavoriteTireProductDetail({ params }: IPage) {
           </div>
 
           <div className='flex flex-col sm:flex-row items-center gap-4'>
-            <Button
-              className='w-full rounded-full sm:w-auto bg-red-700 hover:bg-red-800 text-white font-medium py-6 px-16'
-              onClick={handleAddToOrder}
-            >
-              ДОБАВИТЬ В ЗАЯВКУ
-            </Button>
+            {user?.id ? (
+              <>
+                <Button
+                  className='w-full rounded-full sm:w-auto bg-red-700 hover:bg-red-800 text-white font-medium py-6 px-16 cursor-pointer'
+                  onClick={handleAddToOrder}
+                >
+                  ДОБАВИТЬ В ЗАЯВКУ
+                </Button>
+                <div className='flex items-center'>
+                  <Button
+                    variant='outline'
+                    className='h-12 w-12 cursor-pointer rounded-full border-2 border-gray-300'
+                    onClick={handleDecrease}
+                  >
+                    <Minus className='h-4 w-4' />
+                  </Button>
 
-            <div className='flex items-center'>
+                  <span className='mx-4 text-lg font-medium min-w-12 text-center'>{quantity}</span>
+
+                  <Button
+                    variant='outline'
+                    className='h-12 w-12 cursor-pointer rounded-full border-2 border-gray-300'
+                    onClick={handleIncrease}
+                  >
+                    <Plus className='h-4 w-4' />
+                  </Button>
+
+                  <span className='ml-4 text-lg'>шт</span>
+                </div>
+              </>
+            ) : (
               <Button
-                variant='outline'
-                className='h-12 w-12 rounded-full border-2 border-gray-300'
-                onClick={handleDecrease}
+                className='w-full rounded-full sm:w-auto bg-red-700 hover:bg-red-800 text-white font-medium py-6 px-16'
+                disabled
               >
-                <Minus className='h-4 w-4' />
+                ДЛЯ ДОБАВЛЕНИЯ В ЗАЯВКУ НУЖНО АВТОРИЗОВАТЬСЯ
               </Button>
+            )}
 
-              <span className='mx-4 text-lg font-medium min-w-12 text-center'>
-                {quantity}
-              </span>
-
-              <Button
-                variant='outline'
-                className='h-12 w-12 rounded-full border-2 border-gray-300'
-                onClick={handleIncrease}
-              >
-                <Plus className='h-4 w-4' />
-              </Button>
-
-              <span className='ml-4 text-lg'>шт</span>
-            </div>
           </div>
         </div>
       </div>
-      <TireOrderModal
-        open={isModalOpen}
-        onOpenChange={() => setIsModalOpen(!isModalOpen)}
-      />
-      <div className='fixed bottom-8 right-8'>
-        <Button
-          className='bg-black hover:bg-gray-800 text-white rounded-full px-8 py-3 font-medium text-lg'
-          onClick={() => setIsModalOpen(true)}
-        >
-          ЗАЯВКА
-          {orderProductData.length > 0 && (
-            <span className='ml-2 bg-red-600 w-4 h-4 rounded-full flex items-center justify-center text-xs'>
-              {data.length}
-            </span>
-          )}
-        </Button>
-      </div>
+      {user?.id ? (
+        <>
+          <TireOrderModal
+            open={isModalOpen}
+            onOpenChange={setIsModalOpen}
+            initialTireId={Number(id)} // Передаем ID продукта
+            initialQuantity={quantity} // Передаем количество
+          />
+          <div className='fixed bottom-8 right-8'>
+            <Button
+              className='bg-black hover:bg-gray-800 text-white rounded-full px-8 py-3 font-medium text-lg'
+              onClick={() => setIsModalOpen(true)}
+            >
+              ЗАЯВКА
+              {orderProductData.length > 0 && (
+                <span className='ml-2 bg-red-600 w-4 h-4 rounded-full flex items-center justify-center text-xs'>
+                  {orderProductData.length}
+                </span>
+              )}
+            </Button>
+          </div>
+        </>
+      ) : (
+        <div className='fixed bottom-8 right-8'>
+          <Button
+            className='bg-black hover:bg-gray-800 text-white rounded-full px-8 py-3 font-medium text-lg'
+            disabled
+          >
+            ДЛЯ ЗАЯВКИ НУЖНО АВТОРИЗОВАТЬСЯ
+          </Button>
+        </div>
+      )}
     </div>
   )
 }
