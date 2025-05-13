@@ -24,6 +24,7 @@ export default function ProfileSettings() {
 	const {error, setError} = useError(null)
 	const [selectedFile, setSelectedFile] = useState<File | null>(null)
 	const fileInputRef = useRef<HTMLInputElement>(null)
+	const [showMessageImagePath, setShowMessageImagePath]  = useState<string | null>(null)
 
 	const handleChange = (
 		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -51,6 +52,7 @@ export default function ProfileSettings() {
 		if (file) {
 			setSelectedFile(file)
 		}
+		setShowMessageImagePath('Внимание для того чтобы avatar отображалось нужно положить картинку в директорию проекта в папку public/images')
 	}
 	console.log(selectedFile)
 	const uploadClickHandler = () => {
@@ -73,6 +75,7 @@ export default function ProfileSettings() {
 
 			// await updatedProfileAvatar(user.id, formData, setError)
 			localStorage.setItem('profileAvatar', selectedFile.name)
+			setShowMessageImagePath(null)
 		}
 
 		await updatedProfile(
@@ -112,6 +115,7 @@ export default function ProfileSettings() {
   				  <div className='w-64 h-64 rounded-full bg-gray-300 mb-6'></div>
   				)}
 
+
 					<Button
 						onClick={uploadClickHandler}
 						className='w-full mb-3 bg-black hover:bg-gray-800 text-white font-medium py-3'
@@ -134,6 +138,10 @@ export default function ProfileSettings() {
 					>
 						УДАЛИТЬ ФОТО
 					</Button>
+
+  				{showMessageImagePath && (
+  					<h1 className='text-xl font-bold my-5 text-orange-500'>{showMessageImagePath}</h1>
+  				)}
 				</div>
 
 				<div className='flex-1'>
