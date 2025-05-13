@@ -15,14 +15,13 @@ const navLinks = [
 
 export default function Header() {
   const {user, isLoading, logout} = useAuth()
-
   return (
     <header className="w-full bg-white">
       <div className="max-w-screen-xl  mx-auto flex items-center justify-between px-4 py-3">
         <Link href="/">
           <div className="flex items-center gap-2">
             <Image
-              src="/images/atlant-trade-logo.png"
+              src={`/images/atlant-trade-logo.png`}
               alt="ATLANTTRADE Logo"
               width={120}
               className="cursor-pointer"

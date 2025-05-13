@@ -13,12 +13,13 @@ interface IProfileAvatarProps {
 }
 
 const ProfileAvatar = ({logoutHandler}: IProfileAvatarProps) => {
+	const profileAvatarStorage = localStorage.getItem('profileAvatar')
 	return (
 		<>
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
 					<Avatar>
-						<AvatarImage src='https://github.com/shadcn.png' />
+						<AvatarImage src={profileAvatarStorage ? `/images/${profileAvatarStorage}` : 'https://github.com/shadcn.png'} />
 						<AvatarFallback>CN</AvatarFallback>
 					</Avatar>
 				</DropdownMenuTrigger>
