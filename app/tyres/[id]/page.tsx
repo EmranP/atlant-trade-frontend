@@ -1,13 +1,11 @@
 'use client';
 
 import {
-  fetchProductsTyres,
   fetchProductsTyresById,
 } from '@/api/tyres/tyres.api';
 import TireOrderModal from '@/components/shared/tyreOrderModal';
 import { Button } from '@/components/ui/button';
 import { APPLICATION_API_URL, PRODUCTS_API_URL } from '@/constants/api';
-import { errorMessage } from '@/constants/error.constatns';
 import { ChevronLeft, Heart, Minus, Plus } from 'lucide-react';
 import Image from 'next/image';
 import { use, useEffect, useState } from 'react';
@@ -25,9 +23,8 @@ interface IPage {
 }
 
 export default function TireProductDetail({ params }: IPage) {
-  const [data, setData] = useState<ITires[]>([]);
   const [orderProductData, setOrderProductData] = useState<IOrders[]>([]);
-  const [dataTireProduct, setDataTireProduct] = useState<ITires | null>(null);
+  const [dataTireProduct, setDataTireProduct] = useState<ITires | undefined | null>(null);
   const [quantity, setQuantity] = useState<number>(1); // Инициализируем количеством 1
   const [isFavorite, setIsFavorite] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,17 +35,15 @@ export default function TireProductDetail({ params }: IPage) {
 
   useEffect(() => {
     const getProduct = async () => {
-      const data = await fetchProductsTyresById(PRODUCTS_API_URL, id, errorMessage);
-      const dataAllProduct = await fetchProductsTyres(PRODUCTS_API_URL, errorMessage);
+      const data = await fetchProductsTyresById(PRODUCTS_API_URL, id, setError);
 
-      if (data && typeof data !== 'string') {
-        setDataTireProduct(data as ITires);
+
+      if (data) {
+        setDataTireProduct(data);
         setQuantity(data.amount || 1); // Устанавливаем количество из данных продукта или 1
       }
 
-      if (dataAllProduct && typeof dataAllProduct !== 'string') {
-        setData(dataAllProduct);
-      }
+
     };
 
     const getOrder = async () => {
@@ -109,6 +104,7 @@ export default function TireProductDetail({ params }: IPage) {
       } else {
         await addFavorite(id, user.id);
       }
+      window.location.reload()
       setIsFavorite(!isFavorite);
     } catch (err) {
       console.error('Ошибка при изменении избранного:', err);
@@ -168,7 +164,7 @@ export default function TireProductDetail({ params }: IPage) {
           <div className='mb-8'>
             <p className='text-4xl font-bold'>{dataTireProduct?.price} ₽</p>
           </div>
-
+          {error && (<h1 className='text-2xl font-bold my-5 text-red-500'>{error}</h1>)}
           <div className='mb-8 max-w-lg'>
             {products.map((product, index) => (
               <div key={index} className='flex justify-between py-3'>
