@@ -30,6 +30,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
+        cz-shortcut-listen="true"
+        // suppressHydrationWarning={false}
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
       <AuthProvider>

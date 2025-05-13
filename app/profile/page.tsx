@@ -52,7 +52,7 @@ export default function ProfileSettings() {
 			setSelectedFile(file)
 		}
 	}
-
+	console.log(selectedFile)
 	const uploadClickHandler = () => {
 		fileInputRef.current?.click()
 	}
@@ -72,6 +72,7 @@ export default function ProfileSettings() {
 			formData.append('avatar', selectedFile)
 
 			// await updatedProfileAvatar(user.id, formData, setError)
+			localStorage.setItem('profileAvatar', selectedFile.name)
 		}
 
 		await updatedProfile(
