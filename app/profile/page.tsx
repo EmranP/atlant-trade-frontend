@@ -1,10 +1,12 @@
 'use client'
-import { deleteProfileAvatar, INewProfile, updatedProfile, updatedProfilePassword } from '@/api/profile/profile.api'
+import { deleteProfileAvatar, INewProfile, updatedProfile, updatedProfileAvatar, updatedProfilePassword } from '@/api/profile/profile.api'
+import { CreateFakeButtonClient } from '@/components/shared/CreateFakeButtonClient'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/shared/hooks/useAuth'
 import { useError } from '@/shared/hooks/useError'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { ChangeEvent, useRef, useState } from 'react'
 
 export default function ProfileSettings() {
@@ -24,7 +26,8 @@ export default function ProfileSettings() {
 	const {error, setError} = useError(null)
 	const [selectedFile, setSelectedFile] = useState<File | null>(null)
 	const fileInputRef = useRef<HTMLInputElement>(null)
-	const [showMessageImagePath, setShowMessageImagePath]  = useState<string | null>(null)
+	// const [showMessageImagePath, setShowMessageImagePath]  = useState<string | null>(null)
+	const router = useRouter()
 
 	const handleChange = (
 		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -52,9 +55,9 @@ export default function ProfileSettings() {
 		if (file) {
 			setSelectedFile(file)
 		}
-		setShowMessageImagePath('Внимание для того чтобы avatar отображалось нужно положить картинку в директорию проекта в папку public/images')
+		// setShowMessageImagePath('Внимание для того чтобы avatar отображалось нужно положить картинку в директорию проекта в папку public/images')
 	}
-	console.log(selectedFile)
+
 	const uploadClickHandler = () => {
 		fileInputRef.current?.click()
 	}
@@ -66,27 +69,40 @@ export default function ProfileSettings() {
 	}
 
 	const saveHandler = async () => {
-		// Add redirect
-		if (!user?.id) return
+	if (!user?.id) return;
 
+	try {
 		if (selectedFile) {
-			const formData = new FormData()
-			formData.append('avatar', selectedFile)
+			const formDataFile = new FormData();
+			formDataFile.append('avatar', selectedFile);
+			const avatarResponse = await updatedProfileAvatar(user.id, formDataFile, setError);
 
-			// await updatedProfileAvatar(user.id, formData, setError)
-			localStorage.setItem('profileAvatar', selectedFile.name)
-			setShowMessageImagePath(null)
+			if (avatarResponse?.avatar) {
+  			setFormData(prev => ({ ...prev, avatar: `/images/${avatarResponse.avatar}` }));
+			}
+
+			// localStorage.setItem('profileAvatar', selectedFile.name);
+			// setShowMessageImagePath(null);
 		}
 
-		await updatedProfile(
-			user.id,
-			updatedProfileData,
-			setError
-		)
-		await updatedProfilePassword(user.id, updatedProfilePasswordData, setError)
+		// Обновляем профиль
+		await updatedProfile(user.id, updatedProfileData, setError);
 
-		console.log('Settings saved:', formData)
-	}
+		// Обновляем пароль только если он указан
+		if (formData.oldPassword && formData.newPassword && formData.confirmPassword) {
+			if (formData.newPassword !== formData.confirmPassword) {
+				setError('Пароли не совпадают');
+				return;
+			}
+			await updatedProfilePassword(user.id, updatedProfilePasswordData, setError);
+		}
+
+			router.refresh();
+		} catch (err) {
+			console.error('Ошибка при сохранении настроек:', err);
+			setError('Произошла ошибка при обновлении профиля. Попробуйте снова.');
+		}
+	};
 
 	return (
 		<div className='max-w-5xl mx-auto px-4 py-8'>
@@ -139,9 +155,9 @@ export default function ProfileSettings() {
 						УДАЛИТЬ ФОТО
 					</Button>
 
-  				{showMessageImagePath && (
+  				{/*{showMessageImagePath && (
   					<h1 className='text-xl font-bold my-5 text-orange-500'>{showMessageImagePath}</h1>
-  				)}
+  				)}*/}
 				</div>
 
 				<div className='flex-1'>
@@ -245,7 +261,7 @@ export default function ProfileSettings() {
 						</div>
 					</div>
 
-					<div className='flex justify-end gap-4'>
+					<div className='flex justify-end items-center gap-4'>
 						<Button
 							onClick={() => {}}
 							variant='outline'
@@ -260,6 +276,7 @@ export default function ProfileSettings() {
 						>
 							СОХРАНИТЬ ИЗМЕНЕНИЯ
 						</Button>
+						<CreateFakeButtonClient />
 					</div>
 				</div>
 			</div>

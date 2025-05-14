@@ -1,4 +1,5 @@
 import { fetchProductsTyres } from '@/api/tyres/tyres.api'
+import { CreateFakeButtonClient } from '@/components/shared/CreateFakeButtonClient'
 import Filters from '@/components/shared/Filters'
 import OrderButton from '@/components/shared/OrderButton'
 import TyreCard from '@/components/shared/tyreCard'
@@ -43,13 +44,17 @@ export default async function TruckTiresPage() {
 
 			<Filters tires={tires} />
 
-			<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-				{tires?.map(tire => (
-					<Link key={tire.id} href={`/tyres/${tire.id}`}>
-						<TyreCard model={tire} />
-					</Link>
-				))}
-			</div>
+      {tires.length ? (
+				<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+					{tires?.map(tire => (
+						<Link key={tire.id} href={`/tyres/${tire.id}`}>
+							<TyreCard model={tire} />
+						</Link>
+					))}
+				</div>
+      ): (
+      	<CreateFakeButtonClient />
+      )}
 
 			<OrderButton />
 		</div>

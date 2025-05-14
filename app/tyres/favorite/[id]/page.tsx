@@ -5,7 +5,7 @@ import {
 } from '@/api/tyres/tyres.api'
 import TireOrderModal from '@/components/shared/tyreOrderModal'
 import { Button } from '@/components/ui/button'
-import { APPLICATION_API_URL, PRODUCTS_API_URL } from '@/constants/api'
+import { APPLICATION_API_URL, deafultImageUrl, PRODUCTS_API_URL } from '@/constants/api'
 import { ChevronLeft, Heart, Minus, Plus } from 'lucide-react'
 import Image from 'next/image'
 import { use, useEffect, useState } from 'react'
@@ -106,7 +106,6 @@ export default function FavoriteTireProductDetail({ params }: IPage) {
       } else {
         await addFavorite(id, user.id);
       }
-      window.location.reload()
       setIsFavorite(!isFavorite);
     } catch (err) {
       console.error('Ошибка при изменении избранного:', err);
@@ -144,8 +143,8 @@ export default function FavoriteTireProductDetail({ params }: IPage) {
             <Image
               width={100}
               height={100}
-              src='/images/tyre1.png'
-              alt='DRC D721 315/80 R22.5 Tire'
+               src={dataTireProduct?.image || deafultImageUrl}
+              alt={dataTireProduct?.name || 'Tire'}
               className='w-full object-contain'
             />
           </div>

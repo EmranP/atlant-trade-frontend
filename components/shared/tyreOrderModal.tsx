@@ -305,9 +305,6 @@ export default function TireOrderModal({
       return { tire: product, quantity };
     });
 
-  console.log('products order', products)
-  console.log('orders', orders)
-
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className='sm:max-w-2xl'>
