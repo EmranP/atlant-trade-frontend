@@ -120,6 +120,8 @@ export default function TireProductDetail({ params }: IPage) {
     setIsModalOpen(true);
   };
 
+  console.log(error)
+
   return (
     <div className='max-w-7xl mx-auto px-4 py-8'>
       <div className='mb-8'>
@@ -148,23 +150,25 @@ export default function TireProductDetail({ params }: IPage) {
         </div>
 
         <div>
-          <div className='flex justify-end items-center mb-6 w-full'>
-            <Button
-              variant='outline'
-              className={`rounded-full cursor-pointer p-2 bg-gray-100`}
-              onClick={toggleFavoriteHandler}
-            >
-              <Heart
-                className={`h-6 w-6 ${isFavorite ? 'fill-black stroke-black' : 'stroke-black'}`}
-              />
-              <span className='ml-2'>В Избранное</span>
-            </Button>
-          </div>
+          {user?.id && (
+            <div className='flex justify-end items-center mb-6 w-full'>
+              <Button
+                variant='outline'
+                className={`rounded-full cursor-pointer p-2 bg-gray-100`}
+                onClick={toggleFavoriteHandler}
+              >
+                <Heart
+                  className={`h-6 w-6 ${isFavorite ? 'fill-black stroke-black' : 'stroke-black'}`}
+                />
+                <span className='ml-2'>В Избранное</span>
+              </Button>
+            </div>
+          )}
 
           <div className='mb-8'>
             <p className='text-4xl font-bold'>{dataTireProduct?.price} ₽</p>
           </div>
-          {error && (<h1 className='text-2xl font-bold my-5 text-red-500'>{error}</h1>)}
+          {/*{error && (<h1 className='text-2xl font-bold my-5 text-red-500'>{error}</h1>)}*/}
           <div className='mb-8 max-w-lg'>
             {products.map((product, index) => (
               <div key={index} className='flex justify-between py-3'>
