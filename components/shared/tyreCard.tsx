@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { Button } from '../ui/button'
 import { Card, CardContent, CardFooter } from '../ui/card'
+import { deafultImageUrl } from '@/constants/api'
 
 interface TyreCardProps {
 	model: {
@@ -18,7 +19,7 @@ const TyreCard = ({ model }: TyreCardProps) => {
 					<Image
 						width={100}
 						height={100}
-						src={'/images/tyre1.png'}
+						src={model.image || deafultImageUrl}
 						alt={model.name || 'image alt'}
 						className='w-full h-full object-contain'
 					/>

@@ -1,4 +1,6 @@
 import { ITires } from '@/app/tyres/page'
+import { PRODUCTS_API_URL } from '@/constants/api'
+import { $api } from '@/lib/api.lib'
 import { Dispatch, SetStateAction } from 'react'
 
 export const fetchProductsTyres = async (
@@ -53,4 +55,18 @@ export const fetchProductsTyresById = async (
 }
 
 
+export const createdFakeProducts = async (userId: number | undefined, setError: Dispatch<SetStateAction<string | null>>):Promise<{message: string} | undefined> => {
+	if (!userId) return
 
+	try {
+		const req = await $api.post<{message: string}>(PRODUCTS_API_URL)
+
+		if (req.status !== 201) {
+			throw new Error('Fake product not created')
+		}
+
+		return req.data
+	} catch (err) {
+		setError(err instanceof Error ? err.message : 'Something error from wrong')
+	}
+}

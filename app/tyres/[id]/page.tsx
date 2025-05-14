@@ -5,7 +5,7 @@ import {
 } from '@/api/tyres/tyres.api';
 import TireOrderModal from '@/components/shared/tyreOrderModal';
 import { Button } from '@/components/ui/button';
-import { APPLICATION_API_URL, PRODUCTS_API_URL } from '@/constants/api';
+import { APPLICATION_API_URL, deafultImageUrl, PRODUCTS_API_URL } from '@/constants/api';
 import { ChevronLeft, Heart, Minus, Plus } from 'lucide-react';
 import Image from 'next/image';
 import { use, useEffect, useState } from 'react';
@@ -31,7 +31,7 @@ export default function TireProductDetail({ params }: IPage) {
   const { id } = use(params);
   const { user } = useAuth();
   const router = useRouter();
-  const { error, setError } = useError('');
+  const { setError } = useError('');
 
   useEffect(() => {
     const getProduct = async () => {
@@ -104,7 +104,6 @@ export default function TireProductDetail({ params }: IPage) {
       } else {
         await addFavorite(id, user.id);
       }
-      window.location.reload()
       setIsFavorite(!isFavorite);
     } catch (err) {
       console.error('Ошибка при изменении избранного:', err);
@@ -119,8 +118,6 @@ export default function TireProductDetail({ params }: IPage) {
     }
     setIsModalOpen(true);
   };
-
-  console.log(error)
 
   return (
     <div className='max-w-7xl mx-auto px-4 py-8'>
@@ -142,7 +139,7 @@ export default function TireProductDetail({ params }: IPage) {
             <Image
               width={100}
               height={100}
-              src={'/images/tyre1.png'}
+              src={dataTireProduct?.image || deafultImageUrl}
               alt={dataTireProduct?.name || 'Tire'}
               className='w-full object-contain'
             />

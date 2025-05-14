@@ -1,3 +1,4 @@
+'use client'
 import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import {
@@ -7,25 +8,31 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
+import { useAuth } from '@/shared/hooks/useAuth'
 
 interface IProfileAvatarProps {
 	logoutHandler: () => Promise<void>
 }
 
 const ProfileAvatar = ({logoutHandler}: IProfileAvatarProps) => {
+	const {user} = useAuth()
+	console.log(user)
 	const profileAvatarStorage = localStorage.getItem('profileAvatar')
 	return (
 		<>
 			<DropdownMenu>
-				<DropdownMenuTrigger asChild>
+				<DropdownMenuTrigger asChild className='cursor-pointer'>
 					<Avatar>
-						<AvatarImage src={profileAvatarStorage ? `/images/${profileAvatarStorage}` : 'https://github.com/shadcn.png'} />
-						<AvatarFallback>CN</AvatarFallback>
+						{user?.avatar ? (
+							<AvatarImage src={user?.avatar} />
+						): !user?.avatar || user?.avatar === '' ? (
+							<AvatarFallback>CN</AvatarFallback>
+						) : null}
 					</Avatar>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent className='w-56'>
 					<DropdownMenuLabel className='font-bold'>
-						Геннадий Тарханян
+						{user?.firstName + ' ' + user?.lastName}
 					</DropdownMenuLabel>
 					<DropdownMenuSeparator />
 					<Link href={'/tyres/favorite'}>

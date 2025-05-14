@@ -17,12 +17,12 @@ export const AuthContext = createContext<AuthContextType | null>(null)
 
 export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
 	const [user, setUser] = useState<IProfile | null>(null)
-	const [isLoading, setIsLoading] = useState(true)
+	const [isLoading, setIsLoading] = useState<boolean>(true)
 	const router = useRouter()
 
 	const fetchMe = async () => {
 		try {
-			const { data } = await $api.get('/auth/authenticated')
+			const { data } = await $api.get<IProfile>('/auth/authenticated')
 			setUser(data)
 		} catch {
 			setUser(null)
@@ -40,12 +40,13 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
 		await fetchMe()
 	}
 
-	const register = async (registerField: string, password: string) => {
-		await $api.post('/auth/register', { email: registerField, password })
-		await fetchMe()
+	const register = async (registerField: string, password: string):Promise<void> => {
+		const { data } = await $api.post<IProfile | null>('/auth/register', { email: registerField, password })
+		if (!data) return
+		setUser(data)
 	}
 
-	const logout = async () => {
+	const logout = async ():Promise<void> => {
 		await $api.post('/auth/logout')
 		setUser(null)
 		setTimeout(() => {
