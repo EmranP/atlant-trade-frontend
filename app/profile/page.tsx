@@ -79,6 +79,8 @@ export default function ProfileSettings() {
 
 			if (avatarResponse?.avatar) {
   			setFormData(prev => ({ ...prev, avatar: `/images/${avatarResponse.avatar}` }));
+
+  			setFormData(prev => ({ ...prev, avatar: avatarResponse?.avatar }))
 			}
 
 			// localStorage.setItem('profileAvatar', selectedFile.name);

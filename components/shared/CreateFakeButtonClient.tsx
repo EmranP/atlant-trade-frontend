@@ -34,7 +34,7 @@ export const CreateFakeButtonClient:FC = () => {
 
       router.refresh()
     } catch (err) {
-      setError('Что-то пошло не так...')
+      setError(err instanceof Error ? err.message : 'Что-то пошло не так...')
     }
   }
 
