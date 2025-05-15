@@ -19,6 +19,7 @@ export const DEALRESHIP_API_URL = `${BASE_API_URL}/dealership`
 
 // URL IMAGE
 export const deafultImageUrl = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTSgg4wujbDMjXW-j-Oly3oPsMJXrfuHeVbg&s'
+export const defaultAvatarUrl = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6Q82WISxpWPp5dHBTWHypFOZbRTvc0ST0xQ&s'
 
 // Domain image url
 export const DOMAIN_IMAGE_URL_ONE = process.env.NEXT_PUBLIC_ACCESS_GET_IMAGE_DOMAIN_ONE || 'encrypted-tbn0.gstatic.com'

@@ -9,6 +9,7 @@ import {
 	DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
 import { useAuth } from '@/shared/hooks/useAuth'
+import { defaultAvatarUrl } from '@/constants/api'
 
 interface IProfileAvatarProps {
 	logoutHandler: () => Promise<void>
@@ -17,14 +18,14 @@ interface IProfileAvatarProps {
 const ProfileAvatar = ({logoutHandler}: IProfileAvatarProps) => {
 	const {user} = useAuth()
 	console.log(user)
-	const profileAvatarStorage = localStorage.getItem('profileAvatar')
+
 	return (
 		<>
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild className='cursor-pointer'>
 					<Avatar>
 						{user?.avatar ? (
-							<AvatarImage src={user?.avatar} />
+							<AvatarImage src={user?.avatar || defaultAvatarUrl} />
 						): !user?.avatar || user?.avatar === '' ? (
 							<AvatarFallback>CN</AvatarFallback>
 						) : null}
