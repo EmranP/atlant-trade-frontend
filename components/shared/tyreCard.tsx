@@ -21,7 +21,7 @@ const TyreCard = ({ model }: TyreCardProps) => {
 						height={100}
 						src={model.image || deafultImageUrl}
 						alt={model.name || 'image alt'}
-						className='w-full h-full object-contain'
+						className='w-full h-full object-contain rounded-2xl'
 					/>
 				</div>
 				<h3 className='text-lg font-bold text-center'>{model.name}</h3>
