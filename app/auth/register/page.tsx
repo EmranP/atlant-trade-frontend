@@ -47,7 +47,7 @@ export default function AuthRegisterPage () {
       <h1 className="text-2xl text-center font-semibold mb-5">Страница регистрация</h1>
       <form onSubmit={submitHandler}>
         <div className="max-w-3/12 mx-auto space-y-5">
-          <Input type="text" placeholder="email or login" {...loginInput}/>
+          <Input type="text" placeholder="email" {...loginInput}/>
           <Input type="password" placeholder="password" {...passInput}/>
           <Input type="password" placeholder="confirm password" {...confirmPassInput}/>
           {error && <p className="text-red-500 text-sm">{error}</p>}

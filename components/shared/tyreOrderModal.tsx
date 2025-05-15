@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { APPLICATION_API_URL } from '@/constants/api'
+import { APPLICATION_API_URL, deafultImageUrl } from '@/constants/api'
 import { useAuth } from '@/shared/hooks/useAuth'
 import { useError } from '@/shared/hooks/useError'
 import Image from 'next/image'
@@ -115,10 +115,10 @@ const ProductCard = ({
 		<div className='bg-white rounded-xl p-4 shadow-sm border flex flex-col items-center'>
 			<div className='w-24 h-24 relative mb-2'>
 				<Image
-					src={'/images/tyre1.png'}
-					alt={tire.name}
+					src={tire.image || deafultImageUrl}
+					alt={tire.name || 'order-image'}
 					fill
-					className='object-contain'
+					className='object-contain rounded-2xl'
 				/>
 			</div>
 			<div className='text-xs text-center font-medium mb-1'>{tire.name}</div>

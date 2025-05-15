@@ -141,7 +141,7 @@ export default function TireProductDetail({ params }: IPage) {
               height={100}
               src={dataTireProduct?.image || deafultImageUrl}
               alt={dataTireProduct?.name || 'Tire'}
-              className='w-full object-contain'
+              className='w-full object-contain rounded-2xl'
             />
           </div>
         </div>
