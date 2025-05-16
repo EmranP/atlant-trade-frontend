@@ -3,7 +3,6 @@ import { CreateFakeButtonClient } from '@/components/shared/CreateFakeButtonClie
 import Filters from '@/components/shared/Filters'
 import OrderButton from '@/components/shared/OrderButton'
 import TyreCard from '@/components/shared/tyreCard'
-import { PRODUCTS_API_URL } from '@/constants/api'
 import { errorMessage } from '@/constants/error.constatns'
 import Link from 'next/link'
 
@@ -26,7 +25,6 @@ export interface ITires {
 
 export default async function TruckTiresPage() {
 	const tires: ITires[] | null | string = await fetchProductsTyres(
-		PRODUCTS_API_URL,
 		errorMessage
 	)
 

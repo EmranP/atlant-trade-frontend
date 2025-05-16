@@ -1,4 +1,5 @@
 'use client'
+
 import { deleteProfileAvatar, INewProfile, updatedProfile, updatedProfileAvatar, updatedProfilePassword } from '@/api/profile/profile.api'
 import { CreateFakeButtonClient } from '@/components/shared/CreateFakeButtonClient'
 import { Button } from '@/components/ui/button'
@@ -73,22 +74,25 @@ export default function ProfileSettings() {
 
 	try {
 		if (selectedFile) {
+			localStorage.removeItem('urlAvatar')
+
 			const formDataFile = new FormData();
 			formDataFile.append('avatar', selectedFile);
 			const avatarResponse = await updatedProfileAvatar(user.id, formDataFile, setError);
 
-			if (avatarResponse?.avatar) {
-  			setFormData(prev => ({ ...prev, avatar: `/images/${avatarResponse.avatar}` }));
+			if (avatarResponse?.url) {
+  			setFormData(prev => ({ ...prev, avatar: `/images/${avatarResponse.url}` }));
 
-  			setFormData(prev => ({ ...prev, avatar: avatarResponse?.avatar }))
+  			setFormData(prev => ({ ...prev, avatar: avatarResponse?.url }))
+
+  			localStorage.setItem('urlAvatar', avatarResponse.url)
 			}
 
-			// localStorage.setItem('profileAvatar', selectedFile.name);
-			// setShowMessageImagePath(null);
+
 		}
 
 		// Обновляем профиль
-		await updatedProfile(user.id, updatedProfileData, setError);
+		await updatedProfile(user?.id, updatedProfileData, setError);
 
 		// Обновляем пароль только если он указан
 		if (formData.oldPassword && formData.newPassword && formData.confirmPassword) {
@@ -96,7 +100,7 @@ export default function ProfileSettings() {
 				setError('Пароли не совпадают');
 				return;
 			}
-			await updatedProfilePassword(user.id, updatedProfilePasswordData, setError);
+			await updatedProfilePassword(user?.id, updatedProfilePasswordData, setError);
 		}
 
 			router.refresh();

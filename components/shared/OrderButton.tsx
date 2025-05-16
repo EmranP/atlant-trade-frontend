@@ -7,8 +7,6 @@ import TireOrderModal from '@/components/shared/tyreOrderModal';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { getOrders, IOrders } from '@/api/order/order.api';
 import { useError } from '@/shared/hooks/useError';
-import { APPLICATION_API_URL } from '@/constants/api';
-
 
 export default function OrderButton() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,7 +22,7 @@ export default function OrderButton() {
 
     const loadOrders = async () => {
       try {
-        const response = await getOrders(user.id, APPLICATION_API_URL, setError)
+        const response = await getOrders(user.id, setError)
 
         if (!response?.length) {
           setError('Orders not have')

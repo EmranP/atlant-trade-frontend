@@ -33,6 +33,8 @@ export default  function FavoriteTiresPage() {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
+  console.log(user)
+
   useEffect(() => {
     const getFavoriteHandler = async () => {
       try {
@@ -79,9 +81,11 @@ export default  function FavoriteTiresPage() {
               </div>
             ) : favoriteTires.length > 0 ? (
               favoriteTires.map((tire) => (
-                <Link key={tire.id} href={`/tyres/favorite/${tire.id}`}>
-                  <TyreCard model={tire} />
-                </Link>
+                <div key={tire?.id} className="h-full">
+                  <Link href={`/tyres/favorite/${tire?.id}`}>
+                    <TyreCard model={tire} />
+                  </Link>
+                </div>
               ))
             ) : (
               <div className='col-span-full text-center py-12'>
