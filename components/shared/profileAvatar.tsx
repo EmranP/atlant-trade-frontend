@@ -10,6 +10,8 @@ import {
 } from '../ui/dropdown-menu'
 import { useAuth } from '@/shared/hooks/useAuth'
 import { defaultAvatarUrl } from '@/constants/api'
+import { useEffect, useState } from 'react'
+import Image from 'next/image'
 
 interface IProfileAvatarProps {
 	logoutHandler: () => Promise<void>
@@ -17,6 +19,18 @@ interface IProfileAvatarProps {
 
 const ProfileAvatar = ({logoutHandler}: IProfileAvatarProps) => {
 	const {user} = useAuth()
+	const [avatarSrc, setAvatarSrc] = useState<string>(defaultAvatarUrl)
+
+	useEffect(() => {
+		if (user?.avatar) {
+			setAvatarSrc(user.avatar)
+		}
+	}, [user])
+
+	const handleImageError = () => {
+		setAvatarSrc(defaultAvatarUrl)
+		localStorage.removeItem('urlAvatar')
+	}
 
 	return (
 		<>
@@ -24,7 +38,7 @@ const ProfileAvatar = ({logoutHandler}: IProfileAvatarProps) => {
 				<DropdownMenuTrigger asChild className='cursor-pointer'>
 					<Avatar>
 						{user?.avatar ? (
-							<AvatarImage src={user?.avatar || defaultAvatarUrl} />
+							<Image width={50} height={50} src={avatarSrc} onError={handleImageError} alt='User avatar' />
 						): !user?.avatar || user?.avatar === '' ? (
 							<AvatarFallback>CN</AvatarFallback>
 						) : null}
