@@ -17,7 +17,6 @@ interface IProfileAvatarProps {
 
 const ProfileAvatar = ({logoutHandler}: IProfileAvatarProps) => {
 	const {user} = useAuth()
-	console.log(user)
 
 	return (
 		<>

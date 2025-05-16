@@ -1,5 +1,5 @@
 import { ITires } from "@/app/tyres/page"
-import { PRODUCTS_API_URL } from "@/constants/api"
+import { APPLICATION_API_URL, PRODUCTS_API_URL } from "@/constants/api"
 import { $api } from "@/lib/api.lib"
 import { Dispatch, SetStateAction } from "react"
 
@@ -22,13 +22,10 @@ export interface IOrders {
 
 export const getOrders = async (
 	userId: number | undefined,
-	url: string | undefined,
 	setError: Dispatch<SetStateAction<string | null>>
 ): Promise<IOrders[] | undefined> => {
 	try {
-		if (!url) return
-
-		const response = await $api.get<IOrders[]>(`${url}?userId=${userId}`)
+		const response = await $api.get<IOrders[]>(`${APPLICATION_API_URL}?userId=${userId}`)
 
 		if (response.status !== 200) {
 			throw new Error('Error response fetch products')
@@ -46,14 +43,11 @@ export const getOrders = async (
 
 export const createdOrders = async (
 	userId: number | undefined,
-	url: string | undefined,
 	data: IOrders,
 	setError: Dispatch<SetStateAction<string | null>>
 ): Promise<IOrders | undefined> => {
 	try {
-		if (!url) return
-
-		const newOrderData = await $api.post<IOrders>(`${url}?userId=${userId}`, data)
+		const newOrderData = await $api.post<IOrders>(`${APPLICATION_API_URL}?userId=${userId}`, data)
 
 		if (newOrderData.status !== 201) {
 			throw new Error('Error where created order')

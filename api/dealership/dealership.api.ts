@@ -1,5 +1,5 @@
 import { IDealership } from "@/app/dealership/page";
-import { DEALRESHIP_API_URL } from "@/constants/api";
+import { APPLICATION_DEALERSHIP_API_URL } from "@/constants/api";
 import { $api } from "@/lib/api.lib";
 import { Dispatch, SetStateAction } from "react";
 
@@ -8,7 +8,7 @@ export const createDealership = async (
   setError: Dispatch<SetStateAction<string | null>>
   ):Promise<IDealership | undefined> => {
   try {
-    const response = await $api.post<{dealership: IDealership; message: string}>(DEALRESHIP_API_URL, data)
+    const response = await $api.post<{dealership: IDealership; message: string}>(APPLICATION_DEALERSHIP_API_URL, data)
 
     if (response.status !== 201) {
       throw new Error('Error from created dealership')

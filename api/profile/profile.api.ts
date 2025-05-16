@@ -29,15 +29,12 @@ export interface INewProfile {
 }
 
 export const fetchProfileGet = async (
-	url: string | undefined,
 	errorMessage: string
 ): Promise<IProfile | string | null> => {
 	try {
-		if (!url) return null
+		const response = await $api.get<IProfile>(PROFILE_API_URL)
 
-		const response = await fetch(url)
-
-		return response.json()
+		return response.data
 	} catch (error) {
 		if (error instanceof Error) {
 			errorMessage = error.message
@@ -97,9 +94,9 @@ export const updatedProfileAvatar = async (
 	userId: number | undefined,
 	data: FormData,
 	setErrorMessage: Dispatch<SetStateAction<string | null>>
-):Promise<INewProfile | undefined> => {
+):Promise<{url: string} | undefined> => {
 	try {
-		const response = await $api.post<INewProfile>(
+		const response = await $api.post<{url: string}>(
 			`${PROFILE_AVATAR_API_URL}?userId=${userId}`,
 			data
 		)

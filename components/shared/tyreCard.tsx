@@ -19,12 +19,12 @@ const TyreCard = ({ model }: TyreCardProps) => {
 					<Image
 						width={100}
 						height={100}
-						src={model.image || deafultImageUrl}
-						alt={model.name || 'image alt'}
+						src={model?.image || deafultImageUrl}
+						alt={model?.name || 'image alt'}
 						className='w-full h-full object-contain rounded-2xl'
 					/>
 				</div>
-				<h3 className='text-lg font-bold text-center'>{model.name}</h3>
+				<h3 className='text-lg font-bold text-center'>{model?.name}</h3>
 			</CardContent>
 			<CardFooter className='flex justify-center px-24'>
 				<Button className='w-full rounded-lg py-2 bg-red-700 hover:bg-red-800 text-white'>

@@ -5,7 +5,7 @@ import {
 } from '@/api/tyres/tyres.api'
 import TireOrderModal from '@/components/shared/tyreOrderModal'
 import { Button } from '@/components/ui/button'
-import { APPLICATION_API_URL, deafultImageUrl, PRODUCTS_API_URL } from '@/constants/api'
+import { deafultImageUrl } from '@/constants/api'
 import { ChevronLeft, Heart, Minus, Plus } from 'lucide-react'
 import Image from 'next/image'
 import { use, useEffect, useState } from 'react'
@@ -36,7 +36,7 @@ export default function FavoriteTireProductDetail({ params }: IPage) {
 
   useEffect(() => {
     const getProduct = async () => {
-      const data = await fetchProductsTyresById(PRODUCTS_API_URL, id, setError);
+      const data = await fetchProductsTyresById(id, setError);
 
       if (data) {
         setDataTireProduct(data);
@@ -46,7 +46,7 @@ export default function FavoriteTireProductDetail({ params }: IPage) {
     };
 
     const getOrder = async () => {
-      const orderData = await getOrders(user?.id, APPLICATION_API_URL, setError);
+      const orderData = await getOrders(user?.id, setError);
 
       if (orderData && typeof orderData !== 'string') {
         setOrderProductData(orderData);

@@ -1,21 +1,21 @@
-export const BASE_API_URL = process.env.NEXT_PUBLIC_BACKEND_URL
-
 // Auth
-export const AUTH_REG_API_URL = `${BASE_API_URL}/auth/register`
-export const AUTH_LOGIN_API_URL = `${BASE_API_URL}/auth/login`
+export const AUTH_REG_API_URL = `/auth/register`
+export const AUTH_LOGIN_API_URL = `/auth/login`
+export const AUTH_LOGOUT_API_URL = `/auth/logout`
+export const AUTH_AUTHENTICATED_API_URL = '/auth/authenticated'
 // Products
-export const PRODUCTS_API_URL = `${BASE_API_URL}/product`
+export const PRODUCTS_API_URL = `/product`
 // FAVORITE
-export const FAVORITE_API_URL = `${BASE_API_URL}/favorite`
+export const FAVORITE_API_URL = `/favorite`
 // Application
-export const APPLICATION_API_URL = `${BASE_API_URL}/application`
-export const APPLICATION_DEALERSHIP_API_URL = `${APPLICATION_API_URL}/dealership`
+export const APPLICATION_API_URL = `/application`
+export const APPLICATION_DEALERSHIP_API_URL = `/dealership`
 // Profile
-export const PROFILE_API_URL = `${BASE_API_URL}/profile`
+export const PROFILE_API_URL = `/profile`
 export const PROFILE_AVATAR_API_URL = `${PROFILE_API_URL}/avatar`
 export const PROFILE_PASS_API_URL = `${PROFILE_API_URL}/password`
 // Dealership
-export const DEALRESHIP_API_URL = `${BASE_API_URL}/dealership`
+export const DEALRESHIP_API_URL = `/dealership`
 
 // URL IMAGE
 export const deafultImageUrl = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTSgg4wujbDMjXW-j-Oly3oPsMJXrfuHeVbg&s'

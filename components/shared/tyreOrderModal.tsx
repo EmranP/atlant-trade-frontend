@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { APPLICATION_API_URL, deafultImageUrl } from '@/constants/api'
+import { deafultImageUrl } from '@/constants/api'
 import { useAuth } from '@/shared/hooks/useAuth'
 import { useError } from '@/shared/hooks/useError'
 import Image from 'next/image'
@@ -115,13 +115,13 @@ const ProductCard = ({
 		<div className='bg-white rounded-xl p-4 shadow-sm border flex flex-col items-center'>
 			<div className='w-24 h-24 relative mb-2'>
 				<Image
-					src={tire.image || deafultImageUrl}
-					alt={tire.name || 'order-image'}
+					src={tire?.image || deafultImageUrl}
+					alt={tire?.name || 'order-image'}
 					fill
 					className='object-contain rounded-2xl'
 				/>
 			</div>
-			<div className='text-xs text-center font-medium mb-1'>{tire.name}</div>
+			<div className='text-xs text-center font-medium mb-1'>{tire?.name}</div>
 			<div className='text-xs text-center mb-2'>8шт</div>
 			<QuantitySelector quantity={quantity} setQuantity={updateQuantity} />
 		</div>
@@ -175,7 +175,7 @@ export default function TireOrderModal({
 
       // Загрузка заказов
       if (user?.id) {
-        const orderResult = await getOrders(user.id, APPLICATION_API_URL, setError);
+        const orderResult = await getOrders(user.id,  setError);
         if (Array.isArray(orderResult)) {
           setOrders(orderResult);
         } else {
@@ -193,7 +193,7 @@ export default function TireOrderModal({
 
   useEffect(() => {
   	const loadOrders = async () => {
-      const result = await getOrders(user?.id, APPLICATION_API_URL, setError);
+      const result = await getOrders(user?.id,  setError);
       if (Array.isArray(result)) {
         setOrders(result);
       } else {
@@ -271,7 +271,6 @@ export default function TireOrderModal({
 
 			const result = await createdOrders(
 				user?.id,
-				APPLICATION_API_URL,
 				orderPayload,
 				setError
 			)
