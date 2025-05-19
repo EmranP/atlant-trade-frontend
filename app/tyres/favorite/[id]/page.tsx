@@ -31,7 +31,7 @@ export default function FavoriteTireProductDetail({ params }: IPage) {
   const { id } = use(params);
   const { user } = useAuth();
   const router = useRouter();
-  const { error, setError } = useError('');
+  const { setError } = useError('');
 
 
   useEffect(() => {
@@ -101,12 +101,11 @@ export default function FavoriteTireProductDetail({ params }: IPage) {
 
     try {
       if (isFavorite) {
-        await removeFavorite(id, user.id);
+        await removeFavorite(id, user.id, setError, setIsFavorite);
 
       } else {
-        await addFavorite(id, user.id);
+        await addFavorite(id, user.id, setError, setIsFavorite);
       }
-      setIsFavorite(!isFavorite);
     } catch (err) {
       console.error('Ошибка при изменении избранного:', err);
       setError('Ошибка при изменении избранного');
@@ -169,7 +168,7 @@ export default function FavoriteTireProductDetail({ params }: IPage) {
           <div className='mb-8'>
             <p className='text-4xl font-bold'>{dataTireProduct?.price} ₽</p>
           </div>
-          {error && (<h1 className='text-2xl font-bold my-5 text-red-500'>{error}</h1>)}
+          {/*{error && (<h1 className='text-2xl font-bold my-5 text-red-500'>{error}</h1>)}*/}
           <div className='mb-8 max-w-lg'>
             {products.map((product, index) => (
               <div key={index} className='flex justify-between py-3'>

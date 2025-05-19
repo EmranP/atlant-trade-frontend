@@ -29,19 +29,19 @@ export interface INewProfile {
 }
 
 export const fetchProfileGet = async (
-	errorMessage: string
-): Promise<IProfile | string | null> => {
+	userId: number | null,
+	errorMessage: Dispatch<SetStateAction<string | null>>
+): Promise<IProfile | undefined> => {
 	try {
-		const response = await $api.get<IProfile>(PROFILE_API_URL)
+		const response = await $api.get<IProfile>(`${PROFILE_API_URL}?userId=${userId}`)
 
 		return response.data
 	} catch (error) {
 		if (error instanceof Error) {
-			errorMessage = error.message
+			errorMessage(error.message)
 		} else {
-			errorMessage = 'Something was wrong from fetch order ('
+			errorMessage('Something was wrong from fetch order (')
 		}
-		return errorMessage || null
 	}
 }
 

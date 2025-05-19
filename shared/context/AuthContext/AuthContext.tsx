@@ -11,7 +11,7 @@ export type AuthContextType = {
 	user: IProfile | null
 	isLoading: boolean
 	login: (loginField: string, password: string) => Promise<void>
-	register: (loginField: string, password: string) => Promise<void>
+	register: (firtsNameField: string, lastNameField: string, phoneField: string, emailField: string, password: string) => Promise<void>
 	logout: () => Promise<void>
 }
 
@@ -52,8 +52,16 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
 		await fetchMe()
 	}
 
-	const register = async (registerField: string, password: string):Promise<void> => {
-		const { data } = await $api.post<IProfile | null>(AUTH_REG_API_URL, { email: registerField, password })
+	const register = async (firtsNameField: string, lastNameField: string, phoneField: string,emailField: string, password: string):Promise<void> => {
+		const { data } = await $api.post<IProfile | null>(AUTH_REG_API_URL,
+			{
+				firstName: firtsNameField,
+				lastName: lastNameField,
+				tel: phoneField,
+				email: emailField,
+				password
+			})
+
 		if (!data) return
 		setUser(data)
 	}
