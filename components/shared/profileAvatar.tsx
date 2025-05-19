@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
+import { Avatar, AvatarFallback } from '../ui/avatar'
 import {
 	DropdownMenu,
 	DropdownMenuContent,

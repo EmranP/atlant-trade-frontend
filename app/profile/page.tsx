@@ -8,7 +8,7 @@ import { useAuth } from '@/shared/hooks/useAuth'
 import { useError } from '@/shared/hooks/useError'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { ChangeEvent, useRef, useState } from 'react'
+import { ChangeEvent,  useRef, useState } from 'react'
 
 export default function ProfileSettings() {
 	const { user } = useAuth()
@@ -103,12 +103,13 @@ export default function ProfileSettings() {
 			await updatedProfilePassword(user?.id, updatedProfilePasswordData, setError);
 		}
 
-			router.refresh();
+			router.push('/');
 		} catch (err) {
 			console.error('Ошибка при сохранении настроек:', err);
 			setError('Произошла ошибка при обновлении профиля. Попробуйте снова.');
 		}
 	};
+
 
 	return (
 		<div className='max-w-5xl mx-auto px-4 py-8'>

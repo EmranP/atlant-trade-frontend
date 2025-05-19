@@ -11,6 +11,9 @@ import { useRouter } from 'next/navigation'
 
 
 export default function AuthRegisterPage () {
+  const firstNameInput = useInput('')
+  const lastNameInput = useInput('')
+  const phoneInput = useInput('')
   const loginInput = useInput('')
   const passInput = useInput('')
   const confirmPassInput = useInput('')
@@ -30,7 +33,7 @@ export default function AuthRegisterPage () {
 
     setLoading(true)
     try {
-      await register(loginInput.value, passInput.value)
+      await register(firstNameInput.value, lastNameInput.value, phoneInput.value, loginInput.value, passInput.value)
 
       router.push('/')
     } catch (err) {
@@ -48,6 +51,9 @@ export default function AuthRegisterPage () {
       <form onSubmit={submitHandler}>
         <div className="max-w-3/12 mx-auto space-y-5">
           <Input type="text" placeholder="email" {...loginInput}/>
+          <Input type="text" placeholder="name" {...firstNameInput}/>
+          <Input type="text" placeholder="surname" {...lastNameInput}/>
+          <Input type="text" placeholder="+7-tel" {...phoneInput}/>
           <Input type="password" placeholder="password" {...passInput}/>
           <Input type="password" placeholder="confirm password" {...confirmPassInput}/>
           {error && <p className="text-red-500 text-sm">{error}</p>}

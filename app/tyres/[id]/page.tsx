@@ -100,11 +100,10 @@ export default function TireProductDetail({ params }: IPage) {
 
     try {
       if (isFavorite) {
-        await removeFavorite(id, user.id);
+        await removeFavorite(id, user.id, setError, setIsFavorite);
       } else {
-        await addFavorite(id, user.id);
+        await addFavorite(id, user.id, setError, setIsFavorite);
       }
-      setIsFavorite(!isFavorite);
     } catch (err) {
       console.error('Ошибка при изменении избранного:', err);
       setError('Ошибка при изменении избранного');

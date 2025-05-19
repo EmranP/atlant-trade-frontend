@@ -277,7 +277,7 @@ export default function TireOrderModal({
 
 			if (result) {
         onOpenChange(false);
-        router.refresh();
+        router.push('/tyres');
       }
 			console.log('Form submitted', { selectedQuantities, formData })
 		}
@@ -419,7 +419,7 @@ export default function TireOrderModal({
                     >
                       <div className='w-24 h-24 relative mb-2'>
                         <Image
-                          src={'/images/tyre1.png'}
+                          src={tire.image || '/images/tyre1.png'}
                           alt={tire.name}
                           fill
                           className='object-contain'
@@ -458,7 +458,7 @@ export default function TireOrderModal({
 									<p className='text-sm mb-2'>Сообщение</p>
 									<div className='border rounded p-4 h-20'>
 										<p className='text-sm'>
-											{formData.workWithUs || 'Работаете с нас?'}
+											{formData.message || 'Работаете с нам?'}
 										</p>
 									</div>
 								</div>

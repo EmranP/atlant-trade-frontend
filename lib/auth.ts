@@ -9,7 +9,7 @@ export async function getServerAuthUser(): Promise<IProfile | null> {
     const token = cookieStore.get('token')?.value
     if (!token) return null
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}${AUTH_AUTHENTICATED_API_URL}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api${AUTH_AUTHENTICATED_API_URL}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
